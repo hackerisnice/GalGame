@@ -1,0 +1,19 @@
+name: Build Ren'Py APK
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: k4yt3x/renpy:latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build APK
+        run: |
+          renpy.sh launcher distribute $GITHUB_WORKSPACE
+          mkdir output
+          cp *.apk output/ 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game-apk
+          path: output/
