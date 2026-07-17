@@ -14,7 +14,7 @@
 ##
 ## The _() surrounding the string marks it as eligible for translation.
 
-define config.name = _("Ren'Py 7 Default GUI")
+define config.name = _("盛夏之歌")
 
 
 ## Determines if the title given above is shown on the main menu
