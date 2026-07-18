@@ -1,0 +1,16 @@
+{
+    "name": "夏日",
+    "short_name": "夏日",
+    "version": "1.0",
+    "numeric_version": 1,
+    "package": "com.yourname.yourgame",
+    "orientation": "sensorLandscape",
+    "expansion": false,
+    "include_pil": false,
+    "include_sqlite": false,
+    "layout": "sensorLandscape",
+    "source": false,
+    "testing": false,
+    "update_icons": false,
+    "update_keystore": false
+}
