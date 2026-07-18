@@ -25,16 +25,16 @@ jobs:
 
       - name: 安装安卓构建环境 (RAPT)
         run: |
-          # 关键修复 3：手动触发安卓 SDK 安装，并用 yes 命令一路自动同意许可协议
-          yes | renpy-8.3.3-sdk/renpy.sh launcher android_installsdk
+          # 修复路径：准确指向 SDK 内部的 launcher 目录
+          yes | renpy-8.3.3-sdk/renpy.sh renpy-8.3.3-sdk/launcher android_installsdk
 
       - name: 构建 APK
         env:
           RENPY_NO_GRAPHICS: 1
         run: |
           mkdir -p output
-          # 关键修复 4：改为专用的 android_build 命令，并用 --dest 直接指定输出目录
-          renpy-8.3.3-sdk/renpy.sh launcher android_build $GITHUB_WORKSPACE --dest output
+          # 修复路径：同样加上 renpy-8.3.3-sdk/ 前缀
+          renpy-8.3.3-sdk/renpy.sh renpy-8.3.3-sdk/launcher android_build $GITHUB_WORKSPACE --dest output
 
       - name: 收集 APK
         run: |
