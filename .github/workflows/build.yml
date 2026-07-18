@@ -11,27 +11,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 安装 Java 21 与 Unzip 工具
+      - name: 安装 Java 21 与工具
         run: |
           sudo apt-get update
-          sudo apt-get install -y openjdk-21-jdk-headless unzip
+          sudo apt-get install -y openjdk-21-jdk-headless unzip wget
 
-      - name: 下载 Ren'Py SDK 与 RAPT 安卓扩展包
+      - name: 下载并配置 Ren'Py SDK 与 RAPT
         run: |
-          # 下载 8.5.3 版本的引擎本体
+          # 1. 下载并解压引擎本体
           wget -q https://www.renpy.org/dl/8.5.3/renpy-8.5.3-sdk.tar.bz2
           tar -xjf renpy-8.5.3-sdk.tar.bz2
           
-          # 下载 8.5.3 版本的 RAPT 安卓扩展包
+          # 2. 下载并解压 RAPT 安卓组件
           wget -q https://www.renpy.org/dl/8.5.3/renpy-8.5.3-rapt.zip
           unzip -q renpy-8.5.3-rapt.zip
+          
+          # 3. 关键修复：确保 rapt 文件夹被正确移动到引擎目录内
+          if [ -d "rapt" ]; then
+            echo "发现游离的 rapt 文件夹，正在移动到 sdk 内部..."
+            mv rapt renpy-8.5.3-sdk/
+          fi
+          
+          # 验证是否放置成功（如果不成功直接阻断报错，方便排查）
+          if [ ! -d "renpy-8.5.3-sdk/rapt" ]; then
+            echo "错误：rapt 文件夹未就位！"
+            exit 1
+          else
+            echo "RAPT 模块已正确安装。"
+          fi
 
       - name: 构建 APK
         env:
           RENPY_NO_GRAPHICS: 1
         run: |
           mkdir -p output
-          # 路径已全部同步更新为 renpy-8.5.3-sdk
           yes "yes" | renpy-8.5.3-sdk/renpy.sh renpy-8.5.3-sdk/launcher android_build $GITHUB_WORKSPACE --dest output
 
       - name: 收集 APK
