@@ -7,7 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: 安装 Java
+      - name: 安装 Java 与依赖
         run: |
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk-headless
@@ -18,14 +18,17 @@ jobs:
           tar -xjf renpy-8.3.3-sdk.tar.bz2
 
       - name: 构建 APK
+        env:
+          RENPY_BASE: ${{ github.workspace }}/renpy-8.3.3-sdk
         run: |
-          ./renpy-8.3.3-sdk/renpy.sh launcher distribute $GITHUB_WORKSPACE
+          $RENPY_BASE/renpy.sh launcher distribute $GITHUB_WORKSPACE
 
       - name: 收集 APK
         run: |
           mkdir output
           cp *.apk output/ 2>/dev/null || true
           cp $GITHUB_WORKSPACE/*.apk output/ 2>/dev/null || true
+          cp renpy-8.3.3-sdk/*.apk output/ 2>/dev/null || true
           ls -la output/
 
       - uses: actions/upload-artifact@v4
