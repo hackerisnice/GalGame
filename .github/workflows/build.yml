@@ -1,38 +1,60 @@
-name: Build Ren'Py Android APK
-
+name: Build android distribution
 on:
   workflow_dispatch:
 
+env:
+  # 必须保留：防止 GitHub 默认的 NDK 与 Ren'Py 冲突
+  ANDROID_NDK_HOME: ""
+
 jobs:
-  build-apk:
+  android_build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 检出仓库代码
+      - name: 检出代码
         uses: actions/checkout@v4
+        with:
+          path: project
 
-      - name: 设置 Java 21 环境
-        # Ren'Py 8.2+ 强制要求使用 Java 21 来编译 Android
+      - name: 设置 Java 21 环境 (修复官方的 Java 8)
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21' 
+          java-version: '21'
 
-      - name: 自动配置并编译 Android APK
-        # 使用专用的 Ren'Py 构建 Action
-        uses: Ayowel/renpy-setup-action@v3
-        env:
-          # 核心跳坑点：清空 GitHub 默认的 NDK 环境变量，强制让插件使用 Ren'Py 自己的 NDK 编译，防止冲突
-          ANDROID_NDK_HOME: ''
+        # 如果你还没有在 GitHub Secrets 里配置密钥，暂时把这一步和下面的 android_properties 删掉或注释掉
+
+
+      - name: 缓存 Ren'Py
+        uses: actions/cache@v4
+        id: cache-renpy-android
         with:
-          version: '8.5.3'
-          action: android_build
-          game: .
-          out_dir: build_output
+          path: renpy
+          # 核心修复：我在 key 后面加了 "-v2"，这会强制 GitHub 抛弃之前的坏缓存，重新下载全新的引擎！
+          key: ${{ runner.os }}-renpy-8.2.3-v2
 
-      - name: 上传构建产物
+      - name: 安装 Ren'Py 和 Android SDK
+        uses: Ayowel/renpy-setup-action@v3
+        if: steps.cache-renpy-android.outputs.cache-hit != 'true'
+        with:
+          action: install
+          version: '8.2.3'
+          install_dir: renpy
+          dlc: rapt
+          android_sdk: true
+          # 下面这些是自动配置正式签名的参数，确保你在 GitHub Secrets 中配置了对应的密码
+          
+      - name: 编译构建 APK
+        uses: Ayowel/renpy-setup-action@v2.0.1
+        with:
+          action: android_build
+          install_dir: renpy
+          build_type: apk
+          game: project
+          out_dir: target
+
+      - name: 上传构建好的 APK
         uses: actions/upload-artifact@v4
         with:
           name: renpy-android-apk
-          # 提取打包出来的所有 apk 文件
-          path: build_output/**/*.apk
+          path: target/**/*.apk
