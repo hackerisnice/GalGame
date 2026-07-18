@@ -1,9 +1,9 @@
 {
-    "name": "夏日",
-    "short_name": "夏日",
-    "version": "1.0",
+    "name": "盛夏之歌",
+    "short_name": "盛夏之歌",
+    "version": "1.0.1",
     "numeric_version": 1,
-    "package": "com.yourname.yourgame",
+    "package": "com.panda.summersong",
     "orientation": "sensorLandscape",
     "expansion": false,
     "include_pil": false,
