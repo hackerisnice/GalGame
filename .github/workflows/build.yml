@@ -34,7 +34,7 @@ jobs:
           key: ${{ runner.os }}-renpy-8.2.3-v2
 
       - name: 安装 Ren'Py 和 Android SDK
-        uses: Ayowel/renpy-setup-action@v3
+        uses: Ayowel/renpy-setup-action@v2.0.1
         if: steps.cache-renpy-android.outputs.cache-hit != 'true'
         with:
           action: install
