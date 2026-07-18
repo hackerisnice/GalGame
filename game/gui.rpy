@@ -1,7 +1,10 @@
 ################################################################################
 ## Initialization
 ################################################################################
-
+init -1 python in gui:
+    def scale(num):
+        # 这里填入你具体的缩放逻辑，最简单的形式是直接返回原值
+        return int(num)
 ## The init offset statement causes the initialization statements in this file
 ## to run before init statements in any other file.
 init offset = -2
