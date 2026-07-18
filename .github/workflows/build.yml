@@ -20,7 +20,7 @@ jobs:
 
       - name: 自动配置并编译 Android APK
         # 使用专用的 Ren'Py 构建 Action
-        uses: Ayowel/renpy-setup-action@v2.0.1
+        uses: Ayowel/renpy-setup-action@v3
         env:
           # 核心跳坑点：清空 GitHub 默认的 NDK 环境变量，强制让插件使用 Ren'Py 自己的 NDK 编译，防止冲突
           ANDROID_NDK_HOME: ''
