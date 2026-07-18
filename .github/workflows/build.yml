@@ -25,6 +25,7 @@ jobs:
           # 核心跳坑点：清空 GitHub 默认的 NDK 环境变量，强制让插件使用 Ren'Py 自己的 NDK 编译，防止冲突
           ANDROID_NDK_HOME: ''
         with:
+          version: '8.5.3'
           action: android_build
           game: .
           out_dir: build_output
