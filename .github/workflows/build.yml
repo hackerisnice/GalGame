@@ -18,31 +18,24 @@ jobs:
 
       - name: 下载并配置 Ren'Py SDK 与 RAPT
         run: |
-          # 1. 下载并解压引擎本体
           wget -q https://www.renpy.org/dl/8.5.3/renpy-8.5.3-sdk.tar.bz2
           tar -xjf renpy-8.5.3-sdk.tar.bz2
           
-          # 2. 下载并解压 RAPT 安卓组件
           wget -q https://www.renpy.org/dl/8.5.3/renpy-8.5.3-rapt.zip
           unzip -q renpy-8.5.3-rapt.zip
           
-          # 3. 关键修复：确保 rapt 文件夹被正确移动到引擎目录内
           if [ -d "rapt" ]; then
-            echo "发现游离的 rapt 文件夹，正在移动到 sdk 内部..."
+            echo "正在移动 rapt 文件夹..."
             mv rapt renpy-8.5.3-sdk/
           fi
           
-          # 验证是否放置成功（如果不成功直接阻断报错，方便排查）
           if [ ! -d "renpy-8.5.3-sdk/rapt" ]; then
             echo "错误：rapt 文件夹未就位！"
             exit 1
-          else
-            echo "RAPT 模块已正确安装。"
           fi
 
       - name: 构建 APK
-        env:
-          RENPY_NO_GRAPHICS: 1
+        # 【关键修改】：删除了 RENPY_NO_GRAPHICS: 1，防止 GUI 缩放变量初始化失败
         run: |
           mkdir -p output
           yes "yes" | renpy-8.5.3-sdk/renpy.sh renpy-8.5.3-sdk/launcher android_build $GITHUB_WORKSPACE --dest output
