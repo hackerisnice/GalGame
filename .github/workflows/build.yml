@@ -1,4 +1,4 @@
-name: Fly
+name: Build Ren'Py Android APK
 
 on:
   workflow_dispatch:
