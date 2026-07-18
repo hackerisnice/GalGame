@@ -1,7 +1,7 @@
-name: Build Ren'Py Android APK
+name: Fly
 
 on:
-  workflow_dispatch: # 允许在 GitHub Actions 页面手动点击运行
+  workflow_dispatch:
 
 jobs:
   build-apk:
@@ -11,43 +11,27 @@ jobs:
       - name: 检出仓库代码
         uses: actions/checkout@v4
 
-      - name: 设置 Java 环境
+      - name: 设置 Java 21 环境
+        # Ren'Py 8.2+ 强制要求使用 Java 21 来编译 Android
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '11' # RAPT (Ren'Py Android Packaging Tool) 工具链依赖 Java 11
+          java-version: '21' 
 
-      - name: 缓存 Ren'Py SDK
-        id: cache-renpy
-        uses: actions/cache@v4
+      - name: 自动配置并编译 Android APK
+        # 使用专用的 Ren'Py 构建 Action
+        uses: Ayowel/renpy-setup-action@v2.0.1
+        env:
+          # 核心跳坑点：清空 GitHub 默认的 NDK 环境变量，强制让插件使用 Ren'Py 自己的 NDK 编译，防止冲突
+          ANDROID_NDK_HOME: ''
         with:
-          path: /opt/renpy
-          # 如果你的项目使用的是其他版本的 Ren'Py，请修改这里的版本号以使缓存失效
-          key: ${{ runner.os }}-renpy-8.2.1
-
-      - name: 下载并解压 Ren'Py
-        if: steps.cache-renpy.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p /opt/renpy
-          cd /opt/renpy
-          # 默认使用 8.2.1 版本，请确保与你本地开发的版本一致以避免兼容性问题
-          wget -q https://www.renpy.org/dl/8.2.1/renpy-8.2.1-sdk.tar.bz2
-          tar -xjf renpy-8.2.1-sdk.tar.bz2
-          mv renpy-8.2.1-sdk sdk
-
-      - name: 安装并配置 Android SDK (RAPT)
-        run: |
-          # 使用 yes 命令自动输入 'y' 以同意所有 Android SDK 的长篇许可协议
-          yes | /opt/renpy/sdk/renpy.sh /opt/renpy/sdk/launcher android_installsdk
-
-      - name: 编译 APK 文件
-        run: |
-          mkdir -p ${{ github.workspace }}/build_output
-          # 执行无头构建 (Headless Build) 命令
-          /opt/renpy/sdk/renpy.sh /opt/renpy/sdk/launcher android_build ${{ github.workspace }} --dest ${{ github.workspace }}/build_output
+          action: android_build
+          game: .
+          out_dir: build_output
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
           name: renpy-android-apk
-          path: ${{ github.workspace }}/build_output/**/*.apk
+          # 提取打包出来的所有 apk 文件
+          path: build_output/**/*.apk
